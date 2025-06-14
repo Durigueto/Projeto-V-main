@@ -5,12 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Loop - Formulários de Pesquisa</title>
   <link rel="stylesheet" href="Styletp.css" />
+  <script src="https://cdn.jsdelivr.net/npm/axios@1.6.7/dist/axios.min.js"></script>
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 </head>
 <body>
   <header class="topbar">
     <button id="menu"><span class="material-icons">menu</span></button>
-    <p class="titulo">Loop - Formulários de Pesquisa</p>
+    <p class="titulo">Formulários de Pesquisa</p>
     <div class="botoescabecalho">
       <button><span class="material-icons">notifications</span></button>
       <button><span class="material-icons">account_circle</span></button>
@@ -20,5 +21,21 @@
   <nav class="menulateral" id="menulateral">
     <a href="main.html"><span class="material-icons">house</span> Início</a>
     <a href="formulario.html"><span class="material-icons">assignment</span> Formulários de pesquisa</a>
-    <a href="relatorios.html"><span class="material-icons">bar_chart</span> Relatórios</a>
+    <a href="Analisar.html"><span class="material-icons">bar_chart</span> Analisar sentimento</a>
+        <a href="../Login/index.html"><span class="material-icons">logout</span> Sair</a>
   </nav>
+
+  <main class="conteudo">
+    <div class="incluirform">
+      <button onclick="window.location.href='novoformulario.html'" class="btnnovoform">
+        <span class="material-icons">add</span> Novo Formulário
+      </button>
+    </div>
+
+    <div class="lista-forms" id="forms">
+    </div>
+  </main>
+
+  <script src="formulario.js"></script>
+</body>
+</html>

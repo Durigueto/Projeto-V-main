@@ -1,3 +1,9 @@
+const token = localStorage.getItem('authToken');
+if (!token) {
+  alert("Você precisa estar logado para acessar esta página.");
+  window.location.href = "../login/index.html"; // ajuste o caminho conforme necessário
+}
+
 const dadosIndicadores = {
   respondidos: 150,
   positivas: 90,
