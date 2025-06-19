@@ -14,7 +14,7 @@ ctlrPergunta.post("/novo-pergunta/:idForm", (req, res) => {
 
     let Dados = {
         Pergunta: pergunta,
-        Status: status || 0,
+        Status: status || "Não Avaliada",
         IdForm: req.params.idForm,
     };
 
@@ -29,13 +29,9 @@ ctlrPergunta.post("/novo-pergunta/:idForm", (req, res) => {
 
 ctlrPergunta.put('/alterar-pergunta/:id', (req, res) => {
     let id = req.params.id;
-    let Pergunta = req.body.pergunta;
-    let Status = req.body.status;
+    let Status = req.body.Status;
 
     let camposParaAtualizar = {};
-
-    camposParaAtualizar.Pergunta = (Pergunta && Pergunta.trim() !== "") ? Pergunta : camposParaAtualizar.Pergunta;
-
     // Operador ternário ele verifica se o valor é diferente de nulo ou vazio, se sim ele atribui o valor, se não ele mantém o valor atual.
     camposParaAtualizar.Status = (Status && Status.trim() !== "") ? Status : camposParaAtualizar.Status;
 
@@ -59,22 +55,6 @@ ctlrPergunta.put('/alterar-pergunta/:id', (req, res) => {
 });
 
 
-ctlrPergunta.get('/perguntas-form/:id', (req, res) => {
-    let id = req.params.id
-
-    if (isNaN(id)) {
-        res.status(401).json({ mensagem: "Id do formulário não pode ser nula" })
-    } else {
-        databese.select("*").table("pergunta")
-            .where({ idForm: id })
-            .then(data => {
-                res.status(201).json({ Perguntas: data });
-            })
-            .catch(err => {
-                res.status(500).json({ mensagem: err });
-            })
-    }
-})
 
 ctlrPergunta.get('/:id', async (req, res) => {
     let id = req.params.id

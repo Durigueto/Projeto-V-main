@@ -1,3 +1,24 @@
+function isTokenExpired(token) {
+  if (!token) return true;
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return Date.now() >= payload.exp * 1000;
+  } catch (e) {
+    return true;
+  }
+}
+
+/*const token = localStorage.getItem('authToken');
+if (!token) {
+  alert("Você precisa estar logado para acessar esta página.");
+  window.location.href = "../login/index.html";
+}
+
+if (isTokenExpired(token)) {
+  alert("Sua sessão expirou. Faça login novamente.");
+  window.location.href = "../login/index.html";
+} */
+
 document.addEventListener("DOMContentLoaded", function () {
   const urlParams = new URLSearchParams(window.location.search);
   const formularioId = urlParams.get("id");
@@ -8,14 +29,10 @@ document.addEventListener("DOMContentLoaded", function () {
     return;
   }
 
-  const perguntasContainer = document.getElementById("formulario");
+  const perguntasContainer = document.getElementById("perguntas-container");
 
-  // Carrega perguntas do formulário
-  axios.get(`http://localhost:3000/pergunta/perguntas-form/${formularioId}`, {
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem('authToken')}`
-    }
-  })
+ axios.get(`http://localhost:3000/publica/perguntas-form/${formularioId}`)
+
   .then(response => {
     const perguntas = response.data.Perguntas;
 
@@ -49,7 +66,6 @@ document.addEventListener("DOMContentLoaded", function () {
     perguntasContainer.innerHTML = "<p>Erro ao carregar perguntas.</p>";
   });
 
-  // Envio de respostas
   const form = document.getElementById("formulario");
   form.addEventListener("submit", function (e) {
     e.preventDefault();
@@ -70,13 +86,11 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
-    // Envia cada resposta individualmente
     const promises = respostas.map(resp =>
-      axios.post("http://localhost:3000/Quest/novo-resposta", resp, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('authToken')}`
-        }
-      })
+      axios.post(
+        `http://localhost:3000/publica/novo_feedBack/${resp.idPergunta}`,
+        { resposta: resp.FeedBack }
+      )
     );
 
     Promise.all(promises)
@@ -90,7 +104,6 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 
-// Modal functions
 function abrirModal() {
   const modal = document.getElementById("modal-agradecimento");
   modal.style.display = "flex";

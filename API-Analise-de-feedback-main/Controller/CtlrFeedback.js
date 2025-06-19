@@ -65,46 +65,46 @@ function interpretarEstrelas(label) {
   });
 
   
-ctlrFeedback.get('/resposta', async (req, res) => {
-    const { texto, status, avaliacao } = req.query; // Usar query parameters
+// ctlrFeedback.get('/resposta', async (req, res) => {
+//     const { texto, status, avaliacao } = req.query; // Usar query parameters
 
-    // Verifica se pelo menos um critério foi fornecido
-    if (!texto && !status && !avaliacao) {
-        return res.status(400).json({ mensagem: "Pelo menos um critério de busca deve ser fornecido (texto, status ou avaliação)." });
-    }
+//     // Verifica se pelo menos um critério foi fornecido
+//     if (!texto && !status && !avaliacao) {
+//         return res.status(400).json({ mensagem: "Pelo menos um critério de busca deve ser fornecido (texto, status ou avaliação)." });
+//     }
 
-    try {
-        // Inicia a query
-        let query = databese.select("*").from("resposta");
+//     try {
+//         // Inicia a query
+//         let query = databese.select("*").from("resposta");
 
-        // Adiciona filtros condicionalmente
-        if (texto && typeof texto === 'string' && texto.trim() !== '') {
-            query = query.whereRaw('FeedBack LIKE ?', [`%${texto}%`]);
-        }
+//         // Adiciona filtros condicionalmente
+//         if (texto && typeof texto === 'string' && texto.trim() !== '') {
+//             query = query.whereRaw('FeedBack LIKE ?', [`%${texto}%`]);
+//         }
 
-        if (status && typeof status === 'string') {
-            query = query.where({ Status: status });
-        }
+//         if (status && typeof status === 'string') {
+//             query = query.where({ Status: status });
+//         }
 
-        if (avaliacao && !isNaN(avaliacao)) {
-            query = query.where({ Avaliacao: avaliacao });
-        }
+//         if (avaliacao && !isNaN(avaliacao)) {
+//             query = query.where({ Avaliacao: avaliacao });
+//         }
 
-        // Executa a query
-        const data = await query;
+//         // Executa a query
+//         const data = await query;
 
-        // Verifica se há resultados
-        if (data.length === 0) {
-            return res.status(404).json({ mensagem: "Nenhuma resposta encontrada para os critérios fornecidos." });
-        }
+//         // Verifica se há resultados
+//         if (data.length === 0) {
+//             return res.status(404).json({ mensagem: "Nenhuma resposta encontrada para os critérios fornecidos." });
+//         }
 
-        // Retorna os resultados
-        res.status(200).json({ data });
-    } catch (err) {
-        console.error("Erro ao buscar respostas:", err);
-        res.status(500).json({ mensagem: "Erro interno no servidor." });
-    }
-});
+//         // Retorna os resultados
+//         res.status(200).json({ data });
+//     } catch (err) {
+//         console.error("Erro ao buscar respostas:", err);
+//         res.status(500).json({ mensagem: "Erro interno no servidor." });
+//     }
+// });
 
 ctlrFeedback.get('/visualizar/:id', async (req, res) => {
     let id = req.params.id;
@@ -113,7 +113,8 @@ ctlrFeedback.get('/visualizar/:id', async (req, res) => {
         res.status(400).json({mensagem: "Id não pode ser nula"});
     } else {
         databese.select("*").from("resposta")
-        .where({ Pergunta: id }).then(data => {
+        .where({ Pergunta: id })
+        .then(data => {
             res.status(200).json({ data });
         }).catch(err => {
             res.status(404).json({err});
@@ -123,6 +124,59 @@ ctlrFeedback.get('/visualizar/:id', async (req, res) => {
 
 })
 
+ctlrFeedback.get('/visualizar_Avaliacao/:avaliacao', async (req, res) => {
+    const avaliacao = req.params.avaliacao;
 
+    if (!avaliacao || typeof avaliacao !== 'string') {
+        return res.status(400).json({ mensagem: "Avaliacao inválido" });
+    }
+
+    databese.select("*").from("resposta")
+        .where({ Avaliacao: avaliacao })
+        .then(data => {
+          res.status(200).json({ Respostas: data }); // Sempre retorna 200, mesmo se vazio  
+        })
+        .catch(err => {
+          if (err.status != 404) {
+            console.error("Erro ao buscar respostas:", err);
+          }
+            res.status(500).json({ mensagem: "Erro ao buscar respostas.", erro: err });
+        });
+});
+
+
+ctlrFeedback.put('/atualizar/:id', async (req, res) => {
+    const id = req.params.id;
+    const {Avaliacao , Status} = req.body;
+
+    if (isNaN(id)) {
+        return res.status(400).json({ mensagem: "Id inválido" });
+    }
+
+    let camposParaAtualizar = {};
+
+    camposParaAtualizar.Avaliacao = (Avaliacao && Avaliacao.trim() !== "") ? Avaliacao : camposParaAtualizar.Avaliacao;
+
+    // Operador ternário ele verifica se o valor é diferente de nulo ou vazio, se sim ele atribui o valor, se não ele mantém o valor atual.
+    camposParaAtualizar.Status = (Status && Status.trim() !== "") ? Status : camposParaAtualizar.Status;
+
+    if (Object.keys(camposParaAtualizar).length > 0) {
+        databese("resposta")
+            .where({ idResposta: id })
+            .update(camposParaAtualizar)
+            .then(data => {
+                if (data) {
+                    res.status(200).json({ mensagem: "Atualização realizada com sucesso!", data });
+                } else {
+                    res.status(404).json({ mensagem: "Registro não encontrado." });
+                }
+            })
+            .catch(err => {visua
+                res.status(500).json({ mensagem: "Erro ao atualizar os dados.", erro: err });
+            });
+    } else {
+        res.status(400).json({ mensagem: "Nenhum campo válido para atualizar." });
+    }
+});
 
 module.exports = ctlrFeedback;

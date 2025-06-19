@@ -109,6 +109,10 @@ body {
   .lista-forms::-webkit-scrollbar {
     width: 8px;
   }
+
+  .formcriado:hover {
+  background-color: #f0f0f0;
+}
   
   .lista-forms::-webkit-scrollbar-track {
     background: transparent;
@@ -254,9 +258,20 @@ body {
     word-break: break-word;
   }
   
-  .add-btn,
-  .delete-btn {
+  .add-btn {
     background-color: #512da8;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .delete-btn {
+    background-color: #ea0909;
     color: white;
     border: none;
     padding: 10px;
@@ -613,3 +628,152 @@ p.sem-resposta {
 }
 
 
+.botoes-superiores {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 1rem 2rem 0 2rem;
+}
+
+.botoes-superiores button {
+  background-color: #5e2ca5;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  font-size: 16px;
+}
+
+#btnExcluir{
+  background-color: #e21212;
+}
+
+.botoes-superiores button:hover {
+  background-color: #3d1c70;
+  transform: scale(1.05);
+}
+
+.botoes-superiores button span.material-icons {
+  pointer-events: none;
+}
+/* 
+.sentimento {
+  font-size: 1.2em;
+  margin-left: 10px;
+}
+.positivo {
+  color: green;
+}
+.neutro {
+  color: orange;
+}
+.negativo {
+  color: red;
+} */
+
+/* .resposta {
+  padding: 0.5rem 1rem;
+  margin-bottom: 0.5rem;
+  background: #f3f3f3;
+  border-radius: 8px;
+  font-size: 1.1rem;
+} */
+
+
+.user-menu-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+#userMenuToggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 28px;
+  color: white;
+  padding: 8px;
+  border-radius: 50%;
+  outline: none;
+}
+
+#userMenuToggle:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.user-menu {
+  position: absolute;
+  top: 48px;
+  right: 0;
+  width: 220px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  overflow: hidden;
+  min-width: 220px;
+  width: auto;
+  max-width: 300px;
+}
+
+.user-menu.hidden {
+  display: none;
+}
+
+.user-header {
+  background-color: #8151f0;
+  padding: 16px;
+  color: white;
+  font-weight: bold;
+  font-size: 14px;
+  word-break: break-word;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.user-options {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.user-options li {
+  padding: 12px 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #333;
+  font-size: 14px;
+}
+
+.user-options li:hover {
+  background-color: #f3f3f3;
+}
+
+.botoescabecalho {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.botoescabecalho button {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 0;
+  font-size: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-menu-wrapper {
+  display: flex;
+  align-items: center;
+}

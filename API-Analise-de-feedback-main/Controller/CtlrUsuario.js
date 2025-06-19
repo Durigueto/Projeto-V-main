@@ -37,6 +37,7 @@ return res.status(200).json({ mensagem: `Logout realizado com sucesso` });
 
 ctlrUsuario.get('/home', (req, res) =>{
   databese.select("*").table("formulario")
+  .where({ IdUser: req.loggedUser.id })
   .then(data => {
     return res.status(201).json({Formularios : data});
   })

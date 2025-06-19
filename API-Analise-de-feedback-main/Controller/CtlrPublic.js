@@ -92,7 +92,7 @@ CtlrPublic.post('/novo_feedBack/:pergunta', async (req, res) => {
         // Verifica se a pergunta existe no banco de dados
         const pergunta = await databese('pergunta')
             .select('*')
-            .where({ id: IdPergunta })
+            .where({ idPergunta: IdPergunta })
             .first();
 
         if (!pergunta) {
@@ -103,7 +103,7 @@ CtlrPublic.post('/novo_feedBack/:pergunta', async (req, res) => {
         const Dados = {
             Pergunta: IdPergunta,
             Status: status || "Não avaliado",
-            FeedBack: resposta
+            Resposta: resposta
         };
 
         // Inserção no banco de dados
@@ -116,6 +116,21 @@ CtlrPublic.post('/novo_feedBack/:pergunta', async (req, res) => {
     }
 });
 
+CtlrPublic.get('/perguntas-form/:id', (req, res) => {
+    let id = req.params.id
 
+    if (isNaN(id)) {
+        res.status(401).json({ mensagem: "Id do formulário não pode ser nula" })
+    } else {
+        databese.select("*").table("pergunta")
+            .where({ idForm: id })
+            .then(data => {
+                res.status(201).json({ Perguntas: data });
+            })
+            .catch(err => {
+                res.status(500).json({ mensagem: err });
+            })
+    }
+})
 
   module.exports = CtlrPublic

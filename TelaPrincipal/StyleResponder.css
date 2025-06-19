@@ -11,7 +11,7 @@ body {
   margin: 80px auto;
   border-radius: 12px;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-  text-align: center; /* centraliza conteúdo */
+  text-align: center;
 }
 
 .titulo-formulario {
@@ -39,7 +39,6 @@ body {
   background-color: #5800cc;
 }
 
-
 .pergunta-bloco {
   margin-bottom: 1.5rem;
   text-align: left;
@@ -58,7 +57,7 @@ textarea {
   border: 1px solid #ccc;
   border-radius: 6px;
   font-size: 16px;
-  resize: vertical; /* ou 'none' se não quiser que o usuário redimensione */
+  resize: vertical;
   box-sizing: border-box;
   margin: 10px 0;
   line-height: 1.5;
@@ -66,22 +65,6 @@ textarea {
   overflow-wrap: break-word;
   word-wrap: break-word;
 }
-
-
-button[type="submit"] {
-  background-color: #6200ea;
-  color: white;
-  padding: 0.8rem 1.2rem;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 1rem;
-}
-
-button:hover {
-  background-color: #4b00c4;
-}
-
 
 .modal-agradecimento {
   display: none;

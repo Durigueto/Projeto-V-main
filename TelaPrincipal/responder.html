@@ -8,25 +8,24 @@
 </head>
 <body>
   <div class="form-container">
-  <h1 class="titulo-formulario">Responder Formulário</h1>
+    <h1 class="titulo-formulario">Responder Formulário</h1>
 
-  <form id="formulario">
-  <!-- perguntas geradas dinamicamente aqui -->
+    <form id="formulario">
+      <div id="perguntas-container">
+      </div>
 
-  <div class="botao-container">
-    <button type="submit" class="botao-enviar">Enviar Respostas</button>
+      <div class="botao-container">
+        <button type="submit" class="botao-enviar">Enviar Respostas</button>
+      </div>
+    </form>
+
+    <div id="modal-agradecimento" class="modal-agradecimento">
+      <div class="modal-conteudo">
+        <p>Sua opinião é muito importante para nós. Obrigado por responder!</p>
+        <button onclick="fecharModal()">Fechar</button>
+      </div>
+    </div>
   </div>
-</form>
-
-
-
-<div id="modal-agradecimento" class="modal-agradecimento">
-  <div class="modal-conteudo">
-    <p>Sua opinião é muito importante para nós. Obrigado por responder!</p>
-    <button onclick="fecharModal()">Fechar</button>
-  </div>
-</div>
-
 
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <script src="responder.js"></script>
