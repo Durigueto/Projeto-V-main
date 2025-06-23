@@ -1,136 +1,3 @@
-// function isTokenExpired(token) {
-//   if (!token) return true;
-//   try {
-//     const payload = JSON.parse(atob(token.split('.')[1]));
-//     // exp está em segundos desde 1970-01-01
-//     return Date.now() >= payload.exp * 1000;
-//   } catch (e) {
-//     return true; // token inválido
-//   }
-// }
-
-// const token = localStorage.getItem('authToken');
-// if (!token) {
-//   alert("Você precisa estar logado para acessar esta página.");
-//   window.location.href = "../login/index.html";
-// }
-
-// if (isTokenExpired(token)) {
-//   alert("Sua sessão expirou. Faça login novamente.");
-//   window.location.href = "../login/index.html";
-// }
-
-// const dadosIndicadores = {
-//   Muito_Positivo: axios.get('http://localhost:3000/feedback/visualizar_Avaliacao/Muito positivo', {
-//     headers: {
-//       'Authorization': `Bearer ${token}`
-//     }
-//   }).then(response => {
-//     return response.data.Respostas.length;
-//   }),
-
-//   positivos: axios.get('http://localhost:3000/feedback/visualizar_Avaliacao/Positivo', {
-//     headers: {
-//       'Authorization': `Bearer ${token}`
-//     }
-//   }).then(response => {
-//     return response.data.Respostas.length;
-//   }),
-
-//   neutras: axios.get('http://localhost:3000/feedback/visualizar_Avaliacao/Neutro', {
-//     headers: {
-//       'Authorization': `Bearer ${token}`
-//     }
-//   }).then(response => {
-//     return response.data.Respostas.length;
-//   }),
-
-//   negativas: axios.get('http://localhost:3000/feedback/visualizar_Avaliacao/Negativo', {
-//     headers: {
-//       'Authorization': `Bearer ${token}`
-//     }
-//   }).then(response => {
-//     return response.data.Respostas.length;
-//   }),
-
-//   respondidos: 150,
-// };
-
-// document.getElementById('indicadorRespondidos').textContent = dadosIndicadores.respondidos;
-// document.getElementById('indicadorPositivas').textContent = dadosIndicadores.Muito_Positivo;
-// document.getElementById('indicadorNeutras').textContent = dadosIndicadores.neutras;
-// document.getElementById('indicadorNegativas').textContent = dadosIndicadores.negativas;
-
-// const ctxBar = document.getElementById('graficoColunas').getContext('2d');  // id correto do gráfico de barras
-// new Chart(ctxBar, {
-//   type: 'bar',
-//   data: {
-//     labels: ['Positivas', 'Neutras', 'Negativas'],
-//     datasets: [{
-//       label: 'Respostas',
-//       data: [dadosIndicadores.positivas, dadosIndicadores.neutras, dadosIndicadores.negativas],
-//       backgroundColor: [
-//         '#6A1B9A',
-//         '#8E24AA',
-//         '#BA68C8'
-//       ],
-//       borderWidth: 1,
-//       borderRadius: 8
-//     }]
-//   },
-//   options: {
-//     responsive: true,
-//     maintainAspectRatio: false,
-//     scales: {
-//       y: {
-//         beginAtZero: true,
-//         ticks: {
-//           color: '#6A1B9A'
-//         }
-//       },
-//       x: {
-//         ticks: {
-//           color: '#6A1B9A'
-//         }
-//       }
-//     },
-//     plugins: {
-//       legend: {
-//         display: false
-//       }
-//     }
-//   }
-// });
-
-// const ctxPie = document.getElementById('graficoPizza').getContext('2d');
-// new Chart(ctxPie, {
-//   type: 'pie',
-//   data: {
-//     labels: ['Positivas', 'Neutras', 'Negativas'],
-//     datasets: [{
-//       label: 'Respostas',
-//       data: [dadosIndicadores.positivas, dadosIndicadores.neutras, dadosIndicadores.negativas],
-//       backgroundColor: [
-//         '#6A1B9A',
-//         '#8E24AA',
-//         '#BA68C8'
-//       ],
-//       borderWidth: 1
-//     }]
-//   },
-//   options: {
-//     responsive: true,
-//     maintainAspectRatio: false,
-//     plugins: {
-//       legend: {
-//         position: 'bottom',
-//         labels: {
-//           color: '#6A1B9A'
-//         }
-//       }
-//     }
-//   }
-// });
 async function carregarIndicadores() {
   const token = localStorage.getItem('authToken');
   if (!token) {
@@ -149,7 +16,10 @@ async function carregarIndicadores() {
       });
   }
 
-  const [muitoPositivo, positivas, neutras, negativas] = await Promise.all([
+  // Busque todos os tipos
+  const [
+    muitoPositivo, positivo, neutro, negativo, muitoNegativo
+  ] = await Promise.all([
     getCount('http://localhost:3000/feedback/visualizar_Avaliacao/Muito positivo'),
     getCount('http://localhost:3000/feedback/visualizar_Avaliacao/Positivo'),
     getCount('http://localhost:3000/feedback/visualizar_Avaliacao/Neutro'),
@@ -157,12 +27,15 @@ async function carregarIndicadores() {
     getCount('http://localhost:3000/feedback/visualizar_Avaliacao/Muito negativo')
   ]);
 
-  const respondidos = muitoPositivo + positivas + neutras + negativas;
+  // Some positivas e negativas
+  const positivas = muitoPositivo + positivo;
+  const negativas = muitoNegativo + negativo;
+
+  const respondidos = positivas + neutro + negativas;
 
   document.getElementById('indicadorRespondidos').textContent = respondidos;
-
-  document.getElementById('indicadorPositivas').textContent = muitoPositivo;
-  document.getElementById('indicadorNeutras').textContent = neutras;
+  document.getElementById('indicadorPositivas').textContent = positivas;
+  document.getElementById('indicadorNeutras').textContent = neutro;
   document.getElementById('indicadorNegativas').textContent = negativas;
 
   const ctxBar = document.getElementById('graficoColunas').getContext('2d');
@@ -172,7 +45,7 @@ async function carregarIndicadores() {
       labels: ['Positivas', 'Neutras', 'Negativas'],
       datasets: [{
         label: 'Respostas',
-        data: [muitoPositivo, neutras, negativas],
+        data: [positivas, neutro, negativas],
         backgroundColor: [
           '#6A1B9A',
           '#8E24AA',
@@ -207,7 +80,7 @@ async function carregarIndicadores() {
       labels: ['Positivas', 'Neutras', 'Negativas'],
       datasets: [{
         label: 'Respostas',
-        data: [muitoPositivo, neutras, negativas],
+        data: [positivas, neutro, negativas],
         backgroundColor: [
           '#6A1B9A',
           '#8E24AA',
@@ -230,39 +103,3 @@ async function carregarIndicadores() {
 }
 
 carregarIndicadores();
-
-document.addEventListener("DOMContentLoaded", function () {
-  const menuToggle = document.getElementById("userMenuToggle");
-  const userMenu = document.getElementById("userMenu");
-  const logoutBtn = document.getElementById("logoutBtn");
-  const userEmailSpan = document.getElementById("userEmail");
-
-  // Lê o token e exibe o e-mail
-  const token = localStorage.getItem("authToken");
-  if (token) {
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      userEmailSpan.textContent = payload.email || "Usuário";
-    } catch (e) {
-      userEmailSpan.textContent = "Usuário";
-    }
-  }
-
-  // Alternar visibilidade do menu
-  menuToggle.addEventListener("click", () => {
-    userMenu.classList.toggle("hidden");
-  });
-
-  // Fechar se clicar fora
-  document.addEventListener("click", function (e) {
-    if (!document.querySelector(".user-menu-wrapper").contains(e.target)) {
-      userMenu.classList.add("hidden");
-    }
-  });
-
-  // Sair
-  logoutBtn.addEventListener("click", function () {
-    localStorage.removeItem("authToken");
-    window.location.href = "../Login/index.html";
-  });
-});

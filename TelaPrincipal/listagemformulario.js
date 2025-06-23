@@ -67,27 +67,15 @@ document.addEventListener("DOMContentLoaded", function () {
         alert("Análise concluída!");
         await renderizarPerguntasComRespostas();
 
+        await axios.put(`http://localhost:3000/user/alterar-status/${formularioId}`, {
+          Status: "Avaliado" 
+          }, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+
       } catch (error) {
         console.error("Erro durante análise:", error);
         alert("Erro ao realizar a análise. Verifique o console.");
-      }
-    });
-  }
-
-  // Botão Excluir
-  const btnExcluir = document.getElementById("btnExcluir");
-  if (btnExcluir) {
-    btnExcluir.addEventListener("click", function () {
-      if (confirm("Tem certeza que deseja excluir este formulário?")) {
-        axios.delete(`http://localhost:3000/formulario/deletar/${formularioId}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        }).then(() => {
-          alert("Formulário excluído com sucesso.");
-          window.location.href = "../TelaPrincipal/index.html";
-        }).catch(error => {
-          console.error("Erro ao excluir formulário:", error);
-          alert("Erro ao excluir formulário.");
-        });
       }
     });
   }
@@ -123,6 +111,9 @@ async function renderizarPerguntasComRespostas() {
     const response = await axios.get(`http://localhost:3000/publica/perguntas-form/${formularioId}`);
     const perguntas = response.data.Perguntas;
 
+    // Colete todas as respostas de todas as perguntas
+    let todasRespostas = [];
+
     for (let index = 0; index < perguntas.length; index++) {
       const pergunta = perguntas[index];
 
@@ -139,26 +130,20 @@ async function renderizarPerguntasComRespostas() {
 
       const respostas = await buscarRespostas(pergunta.idPergunta);
 
+      // Adicione as respostas dessa pergunta ao array geral
+      todasRespostas = todasRespostas.concat(respostas);
+
       if (respostas.length > 0) {
         const respostasFormatadas = respostas.map((r, i) => {
           let icone = "";
           if (r.Avaliacao) {
-            switch (r.Avaliacao) {
-              case "Muito positiva":  
-                icone = "🟢";
-                break;
-              case "Positiva":
-                icone = "🟢";
-                break;
-              case "Neutra":
-                icone = "🟡";
-                break;
-              case "Negativa":
-                icone = "🔴";
-                break;
-              case "Muito negativa":
-                icone = "🔴";
-                break;
+            const avaliacao = r.Avaliacao.trim().toLowerCase();
+            if (avaliacao.includes("positivo")) {
+              icone = "🟢";
+            } else if (avaliacao.includes("neutro")) {
+              icone = "🟡";
+            } else if (avaliacao.includes("negativo")) {
+              icone = "🔴";
             }
           }
           return `<p class='resposta'><strong>Resposta ${i + 1}:</strong> ${r.Resposta} ${icone}</p>`;
@@ -172,12 +157,18 @@ async function renderizarPerguntasComRespostas() {
       perguntasContainer.appendChild(card);
     }
 
+    // Agora, fora do loop, calcule e exiba o status predominante do formulário
+    const statusForm = statusPredominante(todasRespostas);
+    const statusDiv = document.getElementById("statusForm");
+    if (statusDiv) {
+      statusDiv.innerHTML = `<strong>Status predominante do formulário:</strong> ${statusForm}`;
+    }
+
   } catch (error) {
     console.error("Erro ao carregar perguntas:", error);
     perguntasContainer.innerHTML = "<p style='padding: 1rem;'>Erro ao carregar perguntas do formulário.</p>";
   }
 }
-
 document.addEventListener("DOMContentLoaded", function () {
   const menuToggle = document.getElementById("userMenuToggle");
   const userMenu = document.getElementById("userMenu");
@@ -212,4 +203,47 @@ document.addEventListener("DOMContentLoaded", function () {
     localStorage.removeItem("authToken");
     window.location.href = "../Login/index.html";
   });
+});
+
+function statusPredominante(respostas) {
+  const contagem = { positivo: 0, neutro: 0, negativo: 0 };
+
+  respostas.forEach(r => {
+    if (!r.Avaliacao) return;
+    const avaliacao = r.Avaliacao.trim().toLowerCase();
+    if (avaliacao.includes("positivo")) {
+      contagem.positivo++;
+    } else if (avaliacao.includes("neutro")) {
+      contagem.neutro++;
+    } else if (avaliacao.includes("negativo")) {
+      contagem.negativo++;
+    }
+  });
+
+  // Descobre o maior
+  const maior = Math.max(contagem.positivo, contagem.neutro, contagem.negativo);
+  if (maior === 0) return "Sem avaliações";
+  if (maior === contagem.positivo) return "Positivo";
+  if (maior === contagem.neutro) return "Neutro";
+  return "Negativo";
+}
+
+//botao de deletar
+document.addEventListener("DOMContentLoaded", function () {
+  const btnDeletar = document.getElementById("btnExcluir");
+  if (btnDeletar) {
+    btnDeletar.addEventListener("click", function () {
+      if (confirm("Tem certeza que deseja excluir este formulário?")) {
+        axios.delete(`http://localhost:3000/user/formulario/${formularioId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        }).then(() => {
+          alert("Formulário excluído com sucesso.");
+          window.location.href = "/TelaPrincipal/formulario.html";
+        }).catch(error => {
+          console.error("Erro ao excluir formulário:", error);
+          alert("Erro ao excluir formulário.");
+        });
+      }
+    });
+  }
 });
