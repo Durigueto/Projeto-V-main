@@ -2,7 +2,7 @@ const express = require("express");
 const jwt = require("jsonwebtoken");
 const ctlrUsuario = express.Router();
 
-const databese = require("../Database");
+const database = require("../Database");
 
 //Criar um novo formulário
 ctlrUsuario.post('/novo-form', (req, res) => {
@@ -21,7 +21,7 @@ ctlrUsuario.post('/novo-form', (req, res) => {
     Status: "Não avaliado"
   };
 
-  databese.insert(dados).into("formulario")
+  database.insert(dados).into("formulario")
     .then(data => {
       return res.status(201).json({ mensagem: "Formulário criado com sucesso", id: data[0] });
     })
@@ -37,7 +37,7 @@ ctlrUsuario.post('/logout', (req, res) => {
 
 
 ctlrUsuario.get('/home', (req, res) => {
-  databese.select("*").table("formulario")
+  database.select("*").table("formulario")
     .where({ IdUser: req.loggedUser.id })
     .then(data => {
       return res.status(201).json({ Formularios: data });
@@ -50,7 +50,7 @@ ctlrUsuario.get('/home', (req, res) => {
 // rota para trazer um formulário específico
 ctlrUsuario.get('/formulario/:id', (req, res) => {
   const id = req.params.id;
-  databese.select("*").table("formulario")
+  database.select("*").table("formulario")
     .where({ idForm: id })
     .then(data => {
       if (data.length > 0) {
@@ -69,7 +69,7 @@ ctlrUsuario.get('/formlario/:texto', (req, res) => {
   if (!texto) {
     return res.status(400).json({ mensagem: "Texto é obrigatório" });
   }
-  databese.select("*").table("formulario")
+  database.select("*").table("formulario")
     .whereRaw('Titulo LIKE ?', [`%${texto}%`])
     .then(data => {
       if (data.length > 0) {
@@ -88,7 +88,7 @@ ctlrUsuario.get('/formlario/:texto', (req, res) => {
 ctlrUsuario.put('/alterar-status/:id', (req, res) => {  
   const id = req.params.id;
   const { Status } = req.body;
-  databese('formulario')
+  database('formulario')
   .where({ idForm: id })
   .update({ Status })
   .then(data =>
@@ -102,7 +102,7 @@ ctlrUsuario.put('/alterar-status/:id', (req, res) => {
 //rota para deletar um formulário
 ctlrUsuario.delete('/formulario/:id', (req, res) => {
   const id = req.params.id;
-  databese.delete().table("formulario")
+  database.delete().table("formulario")
     .where({ idForm: id })
     .then(data => {
       if (data) {

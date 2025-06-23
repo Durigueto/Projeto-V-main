@@ -2,7 +2,7 @@ const express = require("express");
 const jwt = require("jsonwebtoken");
 const ctlrPergunta = express.Router();
 
-const databese = require("../Database")
+const database = require("../Database")
 
 
 ctlrPergunta.post("/novo-pergunta/:idForm", (req, res) => {
@@ -18,7 +18,7 @@ ctlrPergunta.post("/novo-pergunta/:idForm", (req, res) => {
         IdForm: req.params.idForm,
     };
 
-    databese.insert(Dados).into("pergunta")
+    database.insert(Dados).into("pergunta")
         .then(data => {
             res.status(201).json({ mensagem: data });
         }).catch(err => {
@@ -36,7 +36,7 @@ ctlrPergunta.put('/alterar-pergunta/:id', (req, res) => {
     camposParaAtualizar.Status = (Status && Status.trim() !== "") ? Status : camposParaAtualizar.Status;
 
     if (Object.keys(camposParaAtualizar).length > 0) {
-        databese("pergunta")
+        database("pergunta")
             .where({ idPergunta: id })
             .update(camposParaAtualizar)
             .then(data => {
@@ -62,7 +62,7 @@ ctlrPergunta.get('/:id', async (req, res) => {
     if (isNaN(id)) {
         res.status(401).json({ mensagem: "Id pergunta não pode ser nula" })
     } else {
-        databese.select("*").from("pergunta")
+        database.select("*").from("pergunta")
             .where({ idPergunta: id })
             .then(data => {
                 if (data.length === 0) {
@@ -84,7 +84,7 @@ ctlrPergunta.delete('/deletar-pergunta/:id', (req, res) => {
     if (isNaN(id)) {
         res.status(401).json({ mensagem: "Id pergunta precisa ser um numero" })
     } else {
-        databese.delete("*").from("pergunta")
+        database.delete("*").from("pergunta")
             .where({ idPergunta: id })
             .then(data => {
                 if (data) {

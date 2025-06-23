@@ -5,7 +5,7 @@ const jwt = require("jsonwebtoken");
 const ctlrFeedback = express.Router();
 const axios = require('axios');
 
-const databese = require("../Database");
+const database = require("../Database");
 
 function interpretarEstrelas(label) {
   switch (label) {
@@ -114,7 +114,7 @@ ctlrFeedback.get('/visualizar/:id', async (req, res) => {
   if (isNaN(id)) {
     res.status(400).json({ mensagem: "Id não pode ser nula" });
   } else {
-    databese.select("*").from("resposta")
+    database.select("*").from("resposta")
       .where({ Pergunta: id })
       .then(data => {
         res.status(200).json({ data });
@@ -134,7 +134,7 @@ ctlrFeedback.get('/visualizar_Avaliacao/:avaliacao', async (req, res) => {
   }
 ''
   try {
-    const data = await databese
+    const data = await database
       .select('r.*')
       .from('resposta as r')
       .innerJoin('pergunta as p', 'r.Pergunta', 'p.idPergunta')
@@ -168,7 +168,7 @@ ctlrFeedback.put('/atualizar/:id', async (req, res) => {
   camposParaAtualizar.Status = (Status && Status.trim() !== "") ? Status : camposParaAtualizar.Status;
 
   if (Object.keys(camposParaAtualizar).length > 0) {
-    databese("resposta")
+    database("resposta")
       .where({ idResposta: id })
       .update(camposParaAtualizar)
       .then(data => {
