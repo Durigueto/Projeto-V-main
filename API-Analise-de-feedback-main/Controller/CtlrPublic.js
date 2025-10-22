@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 const CtlrPublic = express.Router();
 const { authenticateToken, JWTSecret } = require("../authMiddleware");
 
-const database = require("../Database")
+const databese = require("../Database")
 
 CtlrPublic.post('/novo-user', (req, res) => {
 
@@ -14,7 +14,7 @@ CtlrPublic.post('/novo-user', (req, res) => {
   }
 
   // Verificar se já existe um usuário com esse email
-  database('usuario').where({ Email: email }).then(data => {
+  databese('usuario').where({ Email: email }).then(data => {
     if (data.length > 0) {
       return res.status(409).json({ mensagem: "Email já está em uso." });
     } else {
@@ -24,7 +24,7 @@ CtlrPublic.post('/novo-user', (req, res) => {
         Email: email,
       }
 
-      database.insert(dados).into("usuario").then(data => {
+      databese.insert(dados).into("usuario").then(data => {
         res.status(201).json({ mensagem: data });
       }).catch(err => {
         res.status(500).json({ mensagem: err });
@@ -41,7 +41,7 @@ CtlrPublic.post('/login', async (req, res) => {
     return res.status(400).json({ mensagem: "Email e senha são obrigatórios" });
   }
 
-  database
+  databese
     .select("*").from("usuario")
     .where({ Email: email, Senha: senha })
     .then(data => {
@@ -90,7 +90,7 @@ CtlrPublic.post('/novo_feedBack/:pergunta', async (req, res) => {
 
     try {
         // Verifica se a pergunta existe no banco de dados
-        const pergunta = await database('pergunta')
+        const pergunta = await databese('pergunta')
             .select('*')
             .where({ idPergunta: IdPergunta })
             .first();
@@ -107,7 +107,7 @@ CtlrPublic.post('/novo_feedBack/:pergunta', async (req, res) => {
         };
 
         // Inserção no banco de dados
-        const data = await database.insert(Dados).into("resposta");
+        const data = await databese.insert(Dados).into("resposta");
 
         res.status(201).json({ mensagem: "Resposta criada com sucesso.", id: data[0] });
     } catch (err) {
@@ -122,7 +122,7 @@ CtlrPublic.get('/perguntas-form/:id', (req, res) => {
     if (isNaN(id)) {
         res.status(401).json({ mensagem: "Id do formulário não pode ser nula" })
     } else {
-        database.select("*").table("pergunta")
+        databese.select("*").table("pergunta")
             .where({ idForm: id })
             .then(data => {
                 res.status(201).json({ Perguntas: data });

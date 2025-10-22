@@ -25,10 +25,9 @@ CREATE TABLE IF NOT EXISTS `formulario` (
   `Titulo` varchar(200) NOT NULL,
   `DataHora` datetime NOT NULL,
   `IdUser` int NOT NULL,
-  `Status` varchar(50) NOT NULL DEFAULT '',
   PRIMARY KEY (`IdForm`),
   KEY `Fk_User` (`IdUser`),
-  CONSTRAINT `Fk_User` FOREIGN KEY (`IdUser`) REFERENCES `usuario` (`idUsuario`) ON DELETE CASCADE
+  CONSTRAINT `Fk_User` FOREIGN KEY (`IdUser`) REFERENCES `usuario` (`idUsuario`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 -- Exportação de dados foi desmarcado.
@@ -41,7 +40,7 @@ CREATE TABLE IF NOT EXISTS `pergunta` (
   `Status` varchar(45) NOT NULL,
   PRIMARY KEY (`idPergunta`) USING BTREE,
   KEY `FK_Form` (`IdForm`) USING BTREE,
-  CONSTRAINT `FK_Form` FOREIGN KEY (`IdForm`) REFERENCES `formulario` (`IdForm`) ON DELETE CASCADE
+  CONSTRAINT `FK_Form` FOREIGN KEY (`IdForm`) REFERENCES `formulario` (`IdForm`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 -- Exportação de dados foi desmarcado.
@@ -51,11 +50,11 @@ CREATE TABLE IF NOT EXISTS `resposta` (
   `idResposta` int NOT NULL AUTO_INCREMENT,
   `Pergunta` int NOT NULL,
   `Status` varchar(45) DEFAULT NULL,
-  `Avaliacao` varchar(45) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
+  `Avaliação` varchar(45) DEFAULT NULL,
   `Resposta` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
   PRIMARY KEY (`idResposta`),
-  KEY `FK_Pergunta` (`Pergunta`),
-  CONSTRAINT `FK_Pergunta` FOREIGN KEY (`Pergunta`) REFERENCES `pergunta` (`idPergunta`) ON DELETE CASCADE
+  UNIQUE KEY `Pergunta_UNIQUE` (`Pergunta`),
+  CONSTRAINT `Resp_Quest` FOREIGN KEY (`Pergunta`) REFERENCES `pergunta` (`idPergunta`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 -- Exportação de dados foi desmarcado.
