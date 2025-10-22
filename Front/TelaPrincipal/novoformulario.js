@@ -2,10 +2,9 @@ function isTokenExpired(token) {
   if (!token) return true;
   try {
     const payload = JSON.parse(atob(token.split('.')[1]));
-    // exp está em segundos desde 1970-01-01
     return Date.now() >= payload.exp * 1000;
   } catch (e) {
-    return true; // token inválido
+    return true;
   }
 }
 
@@ -68,7 +67,6 @@ function salvarFormulario() {
 
     Promise.all(promises)
       .then(() => {
-        // Mostrar modal com link do formulário gerado
         mostrarModalLink(Id);
       })
       .catch(error => {
@@ -82,7 +80,12 @@ function salvarFormulario() {
   });
 }
 
-// Mostrar modal com link
+ if (btnVoltar) {
+    btnVoltar.addEventListener('click', () => {
+      window.history.back();
+    });
+  }
+
 function mostrarModalLink(idFormulario) {
   const modal = document.getElementById("modalLink");
   const linkInput = document.getElementById("linkFormulario");
@@ -93,7 +96,6 @@ function mostrarModalLink(idFormulario) {
   modal.style.display = "flex";
 }
 
-// Copiar link
 function copiarLink() {
   const linkInput = document.getElementById("linkFormulario");
   linkInput.select();
@@ -101,7 +103,6 @@ function copiarLink() {
   alert("Link copiado para a área de transferência!");
 }
 
-// Modal de link
 document.addEventListener('DOMContentLoaded', () => {
   const fecharModalLink = document.getElementById("fecharModal");
   if (fecharModalLink) {
@@ -179,7 +180,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const logoutBtn = document.getElementById("logoutBtn");
   const userEmailSpan = document.getElementById("userEmail");
 
-  // Lê o token e exibe o e-mail
   const token = localStorage.getItem("authToken");
   if (token) {
     try {
@@ -190,19 +190,16 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // Alternar visibilidade do menu
   menuToggle.addEventListener("click", () => {
     userMenu.classList.toggle("hidden");
   });
 
-  // Fechar se clicar fora
   document.addEventListener("click", function (e) {
     if (!document.querySelector(".user-menu-wrapper").contains(e.target)) {
       userMenu.classList.add("hidden");
     }
   });
 
-  // Sair
   logoutBtn.addEventListener("click", function () {
     localStorage.removeItem("authToken");
     window.location.href = "../Login/index.html";

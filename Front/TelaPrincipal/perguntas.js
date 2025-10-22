@@ -15,7 +15,6 @@ document.addEventListener('DOMContentLoaded', () => {
             newDeleteBtn.innerHTML = '<span class="material-icons">delete</span>';
             pergunta.appendChild(newDeleteBtn);
           }
-          // deleteBtn.style.display = 'flex';
         } else if (deleteBtn) {
           deleteBtn.style.display = 'none';
         }

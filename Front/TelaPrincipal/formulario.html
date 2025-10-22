@@ -13,8 +13,8 @@
 <body>
 
   <header class="topbar">
-    <button id="menu"><span class="material-icons">menu</span></button>
-    <p class="titulo">Formulário Detalhado</p>
+    <button id="btnVoltar" title="Voltar à página anterior"><span class="material-icons">arrow_back</span></button>
+    <p class="titulo">Formulários de Pesquisa</p>
     <div class="botoescabecalho">
       <button><span class="material-icons">notifications</span></button>
 
@@ -43,24 +43,16 @@
   </nav>
 
   <main class="conteudo">
-    <div class="botoes-superiores">
-      <button id="btnAvaliar" title="Analisar respostas">
-        <span class="material-icons">analytics</span>
-      </button>
-      <button id="btnCopiarLink" title="Copiar link do formulário">
-        <span class="material-icons">link</span>
-      </button>
-      <button id="btnExcluir" title="Excluir formulário">
-        <span class="material-icons">delete</span>
+    <div class="incluirform">
+      <button onclick="window.location.href='novoformulario.html'" class="btnnovoform">
+        <span class="material-icons">add</span> Novo Formulário
       </button>
     </div>
 
-    <div id="detalhes-formulario">
-      <div id="perguntasContainer"></div>
-       <div id="statusForm" style="margin: 1rem 0; font-size: 1.2em;"></div>
+    <div class="lista-forms" id="forms">
     </div>
   </main>
 
-  <script src="listagemformulario.js"></script>
+  <script src="formulario.js"></script>
 </body>
 </html>

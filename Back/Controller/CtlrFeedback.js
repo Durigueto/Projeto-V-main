@@ -3,68 +3,105 @@ require('dotenv').config();
 const express = require("express");
 const jwt = require("jsonwebtoken");
 const ctlrFeedback = express.Router();
-const axios = require('axios');
 
-const databese = require("../Database");
+const { GoogleGenerativeAI } = require('@google/generative-ai');
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const model = genAI.getGenerativeModel({ model: "gemini-2.5-pro" });
 
-function interpretarEstrelas(label) {
-  switch (label) {
-    case '1 star':
-      return 'Muito negativo';
-    case '2 stars':
-      return 'Negativo';
-    case '3 stars':
-      return 'Neutro';
-    case '4 stars':
-      return 'Positivo';
-    case '5 stars':
-      return 'Muito positivo';
-    default:
-      return 'Desconhecido';
-  }
-}
+const database = require("../Database");
 
-ctlrFeedback.post('/sentimento', async (req, res) => {
-  const { texto } = req.body;
+ctlrFeedback.post("/analisar", async (req, res) => {
+    try {
+        const { texto } = req.body;
 
-  if (!texto) {
-    return res.status(400).json({ erro: 'Campo "texto" é obrigatório.' });
-  }
+        if (!texto) {
+            return res.status(400).json({ erro: "Envie o campo 'texto' no corpo da requisição." });
+        }
 
-  try {
-    const response = await axios.post(
-      'https://api-inference.huggingface.co/models/nlptown/bert-base-multilingual-uncased-sentiment',
-      { inputs: texto },
+        const prompt = `
+      Analise o sentimento do seguinte texto:
+      "${texto}"
+
+      Classifique como POSITIVO, NEGATIVO ou NEUTRO, e explique brevemente o motivo.
+      Retorne no formato JSON assim:
       {
-        headers: {
-          Authorization: `Bearer ${process.env.HUGGINGFACE_API_KEY}`,
-        },
+        "sentimento": "positivo | negativo | neutro",
+        "explicacao": "breve descrição"
       }
-    );
-    console.log(texto)
-    console.log(response.data); // Log para verificar a resposta da API
+    `;
 
-    const resultado = response.data[0]; // Lista de sentimentos
-    const maisProvavel = resultado.reduce((a, b) => (a.score > b.score ? a : b));
-    console.log(maisProvavel.label);//pega o sentimento por estrela(5 muito bom, 4 bom, 3 neutro, 2 ruim, 1 muito ruim)
+        const result = await model.generateContent(prompt);
+        const response = result.response.text();
+        const cleanResponse = response
+            .replace(/```json/g, '')
+            .replace(/```/g, '')
+            .trim();
 
-    res.json({
-      texto,
-      sentimento: interpretarEstrelas(maisProvavel.label),
-      confianca: `${(maisProvavel.score * 100).toFixed(2)}%`,
-      detalhes: resultado.map(r => ({
-        sentimento: interpretarEstrelas(r.label),
-        confianca: `${(r.score * 100).toFixed(2)}%`
-      }))
-    });
-  } catch (error) {
-    console.error('Erro na API da Hugging Face:', error.response?.data || error.message);
-    res.status(500).json({
-      erro: 'Erro ao processar análise de sentimento.',
-      detalhes: error.response?.data || error.message,
-    });
-  }
+        res.json(JSON.parse(cleanResponse));
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ erro: "Erro ao processar a requisição." });
+    }
 });
+
+// function interpretarEstrelas(label) {
+//   switch (label) {
+//     case '1 star':
+//       return 'Muito negativo';
+//     case '2 stars':
+//       return 'Negativo';
+//     case '3 stars':
+//       return 'Neutro';
+//     case '4 stars':
+//       return 'Positivo';
+//     case '5 stars':
+//       return 'Muito positivo';
+//     default:
+//       return 'Desconhecido';
+//   }
+// }
+
+// ctlrFeedback.post('/sentimento', async (req, res) => {
+//   const { texto } = req.body;
+
+//   if (!texto) {
+//     return res.status(400).json({ erro: 'Campo "texto" é obrigatório.' });
+//   }
+
+//   try {
+//     const response = await axios.post(
+//       'https://api-inference.huggingface.co/models/nlptown/bert-base-multilingual-uncased-sentiment',
+//       { inputs: texto },
+//       {
+//         headers: {
+//           Authorization: `Bearer ${process.env.HUGGINGFACE_API_KEY}`,
+//         },
+//       }
+//     );
+//     console.log(texto)
+//     console.log(response.data); // Log para verificar a resposta da API
+
+//     const resultado = response.data[0]; // Lista de sentimentos
+//     const maisProvavel = resultado.reduce((a, b) => (a.score > b.score ? a : b));
+//     console.log(maisProvavel.label);//pega o sentimento por estrela(5 muito bom, 4 bom, 3 neutro, 2 ruim, 1 muito ruim)
+
+//     res.json({
+//       texto,
+//       sentimento: interpretarEstrelas(maisProvavel.label),
+//       confianca: `${(maisProvavel.score * 100).toFixed(2)}%`,
+//       detalhes: resultado.map(r => ({
+//         sentimento: interpretarEstrelas(r.label),
+//         confianca: `${(r.score * 100).toFixed(2)}%`
+//       }))
+//     });
+//   } catch (error) {
+//     console.error('Erro na API da Hugging Face:', error.response?.data || error.message);
+//     res.status(500).json({
+//       erro: 'Erro ao processar análise de sentimento.',
+//       detalhes: error.response?.data || error.message,
+//     });
+//   }
+// });
 
 
 // ctlrFeedback.get('/resposta', async (req, res) => {
@@ -114,7 +151,7 @@ ctlrFeedback.get('/visualizar/:id', async (req, res) => {
   if (isNaN(id)) {
     res.status(400).json({ mensagem: "Id não pode ser nula" });
   } else {
-    databese.select("*").from("resposta")
+    database.select("*").from("resposta")
       .where({ Pergunta: id })
       .then(data => {
         res.status(200).json({ data });
@@ -134,7 +171,7 @@ ctlrFeedback.get('/visualizar_Avaliacao/:avaliacao', async (req, res) => {
   }
 ''
   try {
-    const data = await databese
+    const data = await database
       .select('r.*')
       .from('resposta as r')
       .innerJoin('pergunta as p', 'r.Pergunta', 'p.idPergunta')
@@ -168,7 +205,7 @@ ctlrFeedback.put('/atualizar/:id', async (req, res) => {
   camposParaAtualizar.Status = (Status && Status.trim() !== "") ? Status : camposParaAtualizar.Status;
 
   if (Object.keys(camposParaAtualizar).length > 0) {
-    databese("resposta")
+    database("resposta")
       .where({ idResposta: id })
       .update(camposParaAtualizar)
       .then(data => {

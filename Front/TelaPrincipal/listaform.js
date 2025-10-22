@@ -13,7 +13,6 @@ const dados = [
     }
 ];
 
-// Função para gerar as perguntas e respostas dinamicamente
 const container = document.getElementById('respostas-container');
 
 dados.forEach(item => {
@@ -40,7 +39,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const logoutBtn = document.getElementById("logoutBtn");
   const userEmailSpan = document.getElementById("userEmail");
 
-  // Lê o token e exibe o e-mail
   const token = localStorage.getItem("authToken");
   if (token) {
     try {
@@ -51,19 +49,16 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // Alternar visibilidade do menu
   menuToggle.addEventListener("click", () => {
     userMenu.classList.toggle("hidden");
   });
 
-  // Fechar se clicar fora
   document.addEventListener("click", function (e) {
     if (!document.querySelector(".user-menu-wrapper").contains(e.target)) {
       userMenu.classList.add("hidden");
     }
   });
 
-  // Sair
   logoutBtn.addEventListener("click", function () {
     localStorage.removeItem("authToken");
     window.location.href = "../Login/index.html";

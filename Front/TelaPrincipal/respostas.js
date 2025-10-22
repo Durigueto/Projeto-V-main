@@ -1,4 +1,3 @@
-// Função para buscar e mostrar perguntas e respostas do formulário
 function carregarFormulario() {
     const params = new URLSearchParams(window.location.search);
     const idFormulario = params.get('id');
@@ -8,7 +7,6 @@ function carregarFormulario() {
       return;
     }
   
-    // Fazer requisição para API (ajuste a URL conforme seu backend)
     fetch(`/api/formularios/${idFormulario}/perguntas`)
       .then(response => {
         if (!response.ok) {
@@ -24,25 +22,22 @@ function carregarFormulario() {
       });
   }
   
-  // Função para renderizar perguntas e respostas no HTML
   function mostrarPerguntasERepostas(dados) {
     const container = document.getElementById('container-perguntas');
-    container.innerHTML = ''; // limpa conteúdo anterior
+    container.innerHTML = '';
   
     dados.forEach(pergunta => {
       const divPergunta = document.createElement('div');
       divPergunta.classList.add('pergunta');
   
-      // Título da pergunta
       const titulo = document.createElement('h3');
-      titulo.textContent = pergunta.texto; // ou o campo correto do seu objeto pergunta
+      titulo.textContent = pergunta.texto;
       divPergunta.appendChild(titulo);
-  
-      // Lista das respostas
+
       const listaRespostas = document.createElement('ul');
       pergunta.respostas.forEach(resposta => {
         const item = document.createElement('li');
-        item.textContent = resposta.texto; // ajuste conforme sua estrutura
+        item.textContent = resposta.texto;
         listaRespostas.appendChild(item);
       });
       divPergunta.appendChild(listaRespostas);
@@ -51,7 +46,6 @@ function carregarFormulario() {
     });
   }
   
-  // Executa a função quando o DOM estiver carregado
   document.addEventListener('DOMContentLoaded', carregarFormulario);
 
   document.addEventListener("DOMContentLoaded", function () {
@@ -60,7 +54,6 @@ function carregarFormulario() {
   const logoutBtn = document.getElementById("logoutBtn");
   const userEmailSpan = document.getElementById("userEmail");
 
-  // Lê o token e exibe o e-mail
   const token = localStorage.getItem("authToken");
   if (token) {
     try {
@@ -71,19 +64,16 @@ function carregarFormulario() {
     }
   }
 
-  // Alternar visibilidade do menu
   menuToggle.addEventListener("click", () => {
     userMenu.classList.toggle("hidden");
   });
 
-  // Fechar se clicar fora
   document.addEventListener("click", function (e) {
     if (!document.querySelector(".user-menu-wrapper").contains(e.target)) {
       userMenu.classList.add("hidden");
     }
   });
 
-  // Sair
   logoutBtn.addEventListener("click", function () {
     localStorage.removeItem("authToken");
     window.location.href = "../Login/index.html";
