@@ -2,7 +2,6 @@ require('dotenv').config();
 
 const express = require('express');
 const cors = require("cors");
-const databese = require("./Database");
 
 const app = express();
 const router = require("./router");
@@ -11,10 +10,8 @@ const router = require("./router");
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// CORS
 app.use(cors());
 
-// Middleware para logar TODAS as requisições
 app.use((req, res, next) => {
   console.log(`Recebida requisição: ${req.method} ${req.url}`);
   next();
