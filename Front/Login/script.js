@@ -103,7 +103,7 @@ function login() {
 
             console.log("Token:", token);
 
-            window.location.href = `http://127.0.0.1:5500/Front/TelaPrincipal/main.html`;
+            window.location.href = `http://127.0.0.1:5500/TelaPrincipal/main.html`;
 
         }).catch(err => {
             alert("Login inválido")

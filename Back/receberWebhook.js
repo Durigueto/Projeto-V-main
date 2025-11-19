@@ -2,20 +2,6 @@ const express = require("express");
 const database = require("./Database");
 const webhookResponse = express.Router();
 
-let ultimoDadoRecebido = null;
-
-webhookResponse.post("/receber", (req, res) => {
-  console.log("\n✅ Retorno recebido do webhook:");
-  console.log(req.body);
-
-  ultimoDadoRecebido = req.body;
-
-  res.status(200).json({
-    status: "Recebido com sucesso",
-    dados: req.body
-  });
-});
-
 webhookResponse.get("/ultimo", (req, res) => {
 
   database.select('*').from('atendimento').orderBy('id', 'desc').then((rows) => {

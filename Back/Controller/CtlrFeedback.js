@@ -18,20 +18,38 @@ ctlrFeedback.post("/analisar", async (req, res) => {
             return res.status(400).json({ erro: "Envie o campo 'texto' no corpo da requisição." });
         }
 
+        const sentimentos = [
+            "alegre",
+            "satisfeito",
+            "neutro",
+            "insatisfeito",
+            "bravo",
+            "triste",
+            "confuso",
+            "entusiasmado",
+            "decepcionado"
+        ].join(', ');
+
         const prompt = `
       Analise o sentimento do seguinte texto:
       "${texto}"
 
-      Classifique como POSITIVO, NEGATIVO ou NEUTRO, e explique brevemente o motivo.
-      Retorne no formato JSON assim:
+      Classifique o sentimento do texto escolhendo o termo mais adequado da seguinte lista: ${sentimentos}.
+      
+      Além da classificação, explique brevemente o motivo da escolha.
+      
+      Retorne o resultado **apenas** no formato JSON, sem nenhum texto adicional, assim:
       {
-        "sentimento": "positivo | negativo | neutro",
-        "explicacao": "breve descrição"
+        "sentimento": "um dos termos da lista acima",
+        "explicacao": "breve descrição do motivo"
       }
     `;
 
+        // Assumindo que 'model' e 'generateContent' estão configurados corretamente
         const result = await model.generateContent(prompt);
         const response = result.response.text();
+        
+        // Limpeza da resposta para garantir que seja um JSON puro
         const cleanResponse = response
             .replace(/```json/g, '')
             .replace(/```/g, '')
@@ -44,106 +62,46 @@ ctlrFeedback.post("/analisar", async (req, res) => {
     }
 });
 
-// function interpretarEstrelas(label) {
-//   switch (label) {
-//     case '1 star':
-//       return 'Muito negativo';
-//     case '2 stars':
-//       return 'Negativo';
-//     case '3 stars':
-//       return 'Neutro';
-//     case '4 stars':
-//       return 'Positivo';
-//     case '5 stars':
-//       return 'Muito positivo';
-//     default:
-//       return 'Desconhecido';
-//   }
-// }
+ctlrFeedback.get('/resposta', async (req, res) => {
+    const { texto, status, avaliacao } = req.query; // Usar query parameters
 
-// ctlrFeedback.post('/sentimento', async (req, res) => {
-//   const { texto } = req.body;
+    // Verifica se pelo menos um critério foi fornecido
+    if (!texto && !status && !avaliacao) {
+        return res.status(400).json({ mensagem: "Pelo menos um critério de busca deve ser fornecido (texto, status ou avaliação)." });
+    }
 
-//   if (!texto) {
-//     return res.status(400).json({ erro: 'Campo "texto" é obrigatório.' });
-//   }
+    try {
+        // Inicia a query
+        let query = databese.select("*").from("resposta");
 
-//   try {
-//     const response = await axios.post(
-//       'https://api-inference.huggingface.co/models/nlptown/bert-base-multilingual-uncased-sentiment',
-//       { inputs: texto },
-//       {
-//         headers: {
-//           Authorization: `Bearer ${process.env.HUGGINGFACE_API_KEY}`,
-//         },
-//       }
-//     );
-//     console.log(texto)
-//     console.log(response.data); // Log para verificar a resposta da API
+        // Adiciona filtros condicionalmente
+        if (texto && typeof texto === 'string' && texto.trim() !== '') {
+            query = query.whereRaw('FeedBack LIKE ?', [`%${texto}%`]);
+        }
 
-//     const resultado = response.data[0]; // Lista de sentimentos
-//     const maisProvavel = resultado.reduce((a, b) => (a.score > b.score ? a : b));
-//     console.log(maisProvavel.label);//pega o sentimento por estrela(5 muito bom, 4 bom, 3 neutro, 2 ruim, 1 muito ruim)
+        if (status && typeof status === 'string') {
+            query = query.where({ Status: status });
+        }
 
-//     res.json({
-//       texto,
-//       sentimento: interpretarEstrelas(maisProvavel.label),
-//       confianca: `${(maisProvavel.score * 100).toFixed(2)}%`,
-//       detalhes: resultado.map(r => ({
-//         sentimento: interpretarEstrelas(r.label),
-//         confianca: `${(r.score * 100).toFixed(2)}%`
-//       }))
-//     });
-//   } catch (error) {
-//     console.error('Erro na API da Hugging Face:', error.response?.data || error.message);
-//     res.status(500).json({
-//       erro: 'Erro ao processar análise de sentimento.',
-//       detalhes: error.response?.data || error.message,
-//     });
-//   }
-// });
+        if (avaliacao && !isNaN(avaliacao)) {
+            query = query.where({ Avaliacao: avaliacao });
+        }
 
+        // Executa a query
+        const data = await query;
 
-// ctlrFeedback.get('/resposta', async (req, res) => {
-//     const { texto, status, avaliacao } = req.query; // Usar query parameters
+        // Verifica se há resultados
+        if (data.length === 0) {
+            return res.status(404).json({ mensagem: "Nenhuma resposta encontrada para os critérios fornecidos." });
+        }
 
-//     // Verifica se pelo menos um critério foi fornecido
-//     if (!texto && !status && !avaliacao) {
-//         return res.status(400).json({ mensagem: "Pelo menos um critério de busca deve ser fornecido (texto, status ou avaliação)." });
-//     }
-
-//     try {
-//         // Inicia a query
-//         let query = databese.select("*").from("resposta");
-
-//         // Adiciona filtros condicionalmente
-//         if (texto && typeof texto === 'string' && texto.trim() !== '') {
-//             query = query.whereRaw('FeedBack LIKE ?', [`%${texto}%`]);
-//         }
-
-//         if (status && typeof status === 'string') {
-//             query = query.where({ Status: status });
-//         }
-
-//         if (avaliacao && !isNaN(avaliacao)) {
-//             query = query.where({ Avaliacao: avaliacao });
-//         }
-
-//         // Executa a query
-//         const data = await query;
-
-//         // Verifica se há resultados
-//         if (data.length === 0) {
-//             return res.status(404).json({ mensagem: "Nenhuma resposta encontrada para os critérios fornecidos." });
-//         }
-
-//         // Retorna os resultados
-//         res.status(200).json({ data });
-//     } catch (err) {
-//         console.error("Erro ao buscar respostas:", err);
-//         res.status(500).json({ mensagem: "Erro interno no servidor." });
-//     }
-// });
+        // Retorna os resultados
+        res.status(200).json({ data });
+    } catch (err) {
+        console.error("Erro ao buscar respostas:", err);
+        res.status(500).json({ mensagem: "Erro interno no servidor." });
+    }
+});
 
 ctlrFeedback.get('/visualizar/:id', async (req, res) => {
   let id = req.params.id;
